@@ -1,0 +1,3 @@
+/Users/shihaojing/Projects/Blender/cmake-build-debug/CMakeFiles/rebuild_cache.dir
+/Users/shihaojing/Projects/Blender/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/shihaojing/Projects/Blender/cmake-build-debug/CMakeFiles/main.dir
