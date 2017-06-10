@@ -3,4 +3,5 @@ project(Blender)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(main main.cpp)
+add_subdirectory(slash bin)
+set(prj_bin ${CMAKE_CURRENT_BINARY_DIR}/bin)
