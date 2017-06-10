@@ -1,2 +1,2 @@
-# Blender 
-micro framework for HTTP or websocket server
+# Slash 
+micro web framework
