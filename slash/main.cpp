@@ -6,10 +6,7 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
-#include <string.h>
-#include <unistd.h>
-
-#define PORT 8080
+#include "Server.h"
 
 int StartUp(unsigned short &port)
 {
@@ -42,7 +39,7 @@ int StartUp(unsigned short &port)
 
 int main(int argc, char const *argv[])
 {
-  int ServerSock = -1;
+  /*int ServerSock = -1;
   unsigned short port = 8080;
 
   ServerSock = StartUp(port);
@@ -62,5 +59,8 @@ int main(int argc, char const *argv[])
     }
 
     //todo: Accetp request
-  }
+  }*/
+
+  HTTP::Server::Server server("localhost", "8080", "./");
+  server.run();
 }
