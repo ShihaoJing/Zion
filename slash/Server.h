@@ -7,6 +7,8 @@
 
 #include <boost/asio.hpp>
 #include <string>
+#include "ConnectionManager.h"
+#include "Connection.h"
 
 namespace HTTP {
 namespace Server {
@@ -25,6 +27,10 @@ private:
   boost::asio::io_service io_service_;
   boost::asio::ip::tcp::acceptor acceptor_;
   boost::asio::ip::tcp::socket socket_;
+
+  // The connection manager which owns all live connections.
+  ConnectionManager connection_manager_;
+
 };
 
 } // namespace Server

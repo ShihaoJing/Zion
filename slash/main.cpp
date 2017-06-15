@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <netinet/in.h>
 #include "Server.h"
+#include <iostream>
 
 int StartUp(unsigned short &port)
 {
@@ -60,7 +61,7 @@ int main(int argc, char const *argv[])
 
     //todo: Accetp request
   }*/
-
-  HTTP::Server::Server server("localhost", "8080", "./");
+  std::cout << "start listening on 8080" << std::endl;
+  HTTP::Server::Server server("127.0.0.1", "8080", "./");
   server.run();
 }

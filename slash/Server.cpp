@@ -10,7 +10,9 @@ namespace Server {
 Server::Server(const std::string &address, const std::string &port, const std::string &doc_root)
     : io_service_(),
       acceptor_(io_service_),
-      socket_(io_service_) {
+      socket_(io_service_),
+      connection_manager_()
+{
 
   // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
   boost::asio::ip::tcp::resolver resolver(io_service_);
@@ -41,6 +43,8 @@ void Server::do_accept() {
                            if (!ec)
                            {
                              // start read from socket
+                             connection_manager_.start(std::make_shared<Connection>(
+                                 std::move(socket_), connection_manager_));
                            }
 
                            do_accept();

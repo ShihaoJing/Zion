@@ -1,5 +1,5 @@
 
-set(SOURCE_FILES main.cpp Server.cpp Connection.cpp)
+set(SOURCE_FILES main.cpp Server.cpp Connection.cpp ConnectionManager.cpp)
 add_executable(main ${SOURCE_FILES})
 
 FIND_PACKAGE(Boost COMPONENTS thread system REQUIRED)

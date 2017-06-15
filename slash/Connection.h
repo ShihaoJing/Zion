@@ -6,16 +6,22 @@
 #define SLASH_CONNECTION_H
 
 #include <boost/asio.hpp>
+#include <memory>
+
 
 namespace HTTP {
 namespace Server {
-class Connection {
+
+class ConnectionManager;
+
+class Connection : public std::enable_shared_from_this<Connection>
+{
 public:
   Connection(const Connection&) = delete;
   Connection& operator=(const Connection&) = delete;
 
   // Construct a connection with the given socket.
-  explicit Connection(boost::asio::ip::tcp::socket socket);
+  explicit Connection(boost::asio::ip::tcp::socket socket, ConnectionManager &manager);
 
   // Start the asynchronous operation for the connection
   void start();
@@ -36,10 +42,13 @@ private:
   // Buffer for incoming data.
   std::array<char, 8192> buffer_;
 
+  // The manager for this connection.
+  ConnectionManager& connection_manager_;
+
 
 };
 
-typedef std::shared_ptr<Connection> Connection_ptr;
+typedef std::shared_ptr<Connection> connection_ptr;
 } // namespace Server
 } // namespace HTTP
 
