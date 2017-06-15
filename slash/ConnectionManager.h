@@ -11,6 +11,7 @@ namespace HTTP {
 namespace Server {
 class ConnectionManager {
 public:
+  typedef std::shared_ptr<Connection> connection_ptr;
   ConnectionManager(const ConnectionManager&) = delete;
   ConnectionManager& operator=(const ConnectionManager&) = delete;
 

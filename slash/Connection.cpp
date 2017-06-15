@@ -3,6 +3,7 @@
 //
 
 #include "Connection.h"
+#include "ConnectionManager.h"
 #include <iostream>
 namespace HTTP {
 namespace Server {
@@ -28,16 +29,16 @@ void Connection::do_read() {
                           {
                             if (!ec) {
                               for (auto c: buffer_) std::cout << c;
-                              //do request parsing
+                              //TODO: request parsing
                             }
                             else if (ec != boost::asio::error::operation_aborted) {
-                              // close connection
+                              connection_manager_.stop(self);
                             }
                           });
 }
 
 void Connection::do_write() {
-
+  //TODO: send response
 }
 
 

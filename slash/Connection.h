@@ -48,7 +48,6 @@ private:
 
 };
 
-typedef std::shared_ptr<Connection> connection_ptr;
 } // namespace Server
 } // namespace HTTP
 
