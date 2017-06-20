@@ -6,7 +6,7 @@
 #include <sys/socket.h>
 #include <stdlib.h>
 #include <netinet/in.h>
-#include "Server.h"
+#include "server.h"
 #include <iostream>
 
 int StartUp(unsigned short &port)

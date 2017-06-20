@@ -6,17 +6,17 @@
 #define SLASH_CONNECTIONMANAGER_H
 
 #include <set>
-#include "Connection.h"
+#include "connection.h"
 namespace HTTP {
 namespace Server {
-class ConnectionManager {
+class connection_manager {
 public:
-  typedef std::shared_ptr<Connection> connection_ptr;
-  ConnectionManager(const ConnectionManager&) = delete;
-  ConnectionManager& operator=(const ConnectionManager&) = delete;
+  typedef std::shared_ptr<connection> connection_ptr;
+  connection_manager(const connection_manager&) = delete;
+  connection_manager& operator=(const connection_manager&) = delete;
 
   ///Construct a connection manager.
-  ConnectionManager();
+  connection_manager();
 
   // Add the specified connection to the manager and start it.
   void start(connection_ptr c);

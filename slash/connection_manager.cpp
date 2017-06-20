@@ -2,28 +2,28 @@
 // Created by Shihao Jing on 6/14/17.
 //
 
-#include "ConnectionManager.h"
+#include "connection_manager.h"
 
 namespace HTTP {
 namespace Server {
 
-ConnectionManager::ConnectionManager()
+connection_manager::connection_manager()
 {
 }
 
-void ConnectionManager::start(connection_ptr c)
+void connection_manager::start(connection_ptr c)
 {
   connections_.insert(c);
   c->start();
 }
 
-void ConnectionManager::stop(connection_ptr c)
+void connection_manager::stop(connection_ptr c)
 {
   connections_.erase(c);
   c->stop();
 }
 
-void ConnectionManager::stop_all()
+void connection_manager::stop_all()
 {
   for (auto c: connections_)
     c->stop();

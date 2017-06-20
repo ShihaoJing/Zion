@@ -2,7 +2,7 @@
 // Created by Shihao Jing on 5/31/17.
 //
 
-#include "Server.h"
+#include "server.h"
 
 namespace HTTP {
 namespace Server {
@@ -43,7 +43,7 @@ void Server::do_accept() {
                            if (!ec)
                            {
                              // start read from socket
-                             connection_manager_.start(std::make_shared<Connection>(
+                             connection_manager_.start(std::make_shared<connection>(
                                  std::move(socket_), connection_manager_));
                            }
 

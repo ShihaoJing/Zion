@@ -7,21 +7,22 @@
 
 #include <boost/asio.hpp>
 #include <memory>
-
+#include "request.h"
+#include "request_parser.h"
 
 namespace HTTP {
 namespace Server {
 
-class ConnectionManager;
+class connection_manager;
 
-class Connection : public std::enable_shared_from_this<Connection>
+class connection : public std::enable_shared_from_this<connection>
 {
 public:
-  Connection(const Connection&) = delete;
-  Connection& operator=(const Connection&) = delete;
+  connection(const connection&) = delete;
+  connection& operator=(const connection&) = delete;
 
   // Construct a connection with the given socket.
-  explicit Connection(boost::asio::ip::tcp::socket socket, ConnectionManager &manager);
+  explicit connection(boost::asio::ip::tcp::socket socket, connection_manager &manager);
 
   // Start the asynchronous operation for the connection
   void start();
@@ -43,9 +44,12 @@ private:
   std::array<char, 8192> buffer_;
 
   // The manager for this connection.
-  ConnectionManager& connection_manager_;
+  connection_manager& connection_manager_;
 
+  // incoming request
+  request request_;
 
+  request_parser request_parser_;
 };
 
 } // namespace Server

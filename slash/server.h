@@ -7,8 +7,8 @@
 
 #include <boost/asio.hpp>
 #include <string>
-#include "ConnectionManager.h"
-#include "Connection.h"
+#include "connection_manager.h"
+#include "connection.h"
 
 namespace HTTP {
 namespace Server {
@@ -29,7 +29,7 @@ private:
   boost::asio::ip::tcp::socket socket_;
 
   // The connection manager which owns all live connections.
-  ConnectionManager connection_manager_;
+  connection_manager connection_manager_;
 
 };
 
