@@ -9,6 +9,7 @@
 #include <memory>
 #include "request.h"
 #include "request_parser.h"
+#include "request_handler.h"
 
 namespace HTTP {
 namespace Server {
@@ -22,7 +23,7 @@ public:
   connection& operator=(const connection&) = delete;
 
   // Construct a connection with the given socket.
-  explicit connection(boost::asio::ip::tcp::socket socket, connection_manager &manager);
+  explicit connection(boost::asio::ip::tcp::socket socket, connection_manager &manager, request_handler& handler);
 
   // Start the asynchronous operation for the connection
   void start();
@@ -46,10 +47,14 @@ private:
   // The manager for this connection.
   connection_manager& connection_manager_;
 
-  // incoming request
+  request_handler& request_handler_;
+
+  response response_;
+  // Incoming request
   request request_;
 
   request_parser request_parser_;
+
 };
 
 } // namespace Server

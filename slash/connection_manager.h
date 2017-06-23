@@ -7,6 +7,7 @@
 
 #include <set>
 #include "connection.h"
+
 namespace HTTP {
 namespace Server {
 class connection_manager {

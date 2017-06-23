@@ -31,6 +31,7 @@ private:
   // The connection manager which owns all live connections.
   connection_manager connection_manager_;
 
+  request_handler request_handler_;
 };
 
 } // namespace Server

@@ -5,12 +5,14 @@
 #include "connection.h"
 #include "connection_manager.h"
 #include <iostream>
+
 namespace HTTP {
 namespace Server {
 
-connection::connection(boost::asio::ip::tcp::socket socket, connection_manager &manager)
+connection::connection(boost::asio::ip::tcp::socket socket, connection_manager &manager, request_handler &handler)
     : socket_(std::move(socket)),
-      connection_manager_(manager)
+      connection_manager_(manager),
+      request_handler_(handler)
 {
 }
 
@@ -37,6 +39,10 @@ void connection::do_read() {
                                 std::cout << header.first << " : " << header.second << std::endl;
                               }
                               //TODO: handle request
+                              std::cout << "request handler" << std::endl;
+                              // request_handler here
+                              request_handler_.handle_request(request_, response_);
+                              std::cout << response_.content;
                             }
                             else if (ec != boost::asio::error::operation_aborted) {
                               self->connection_manager_.stop(self);
