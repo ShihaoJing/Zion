@@ -9,8 +9,7 @@
 #include <unordered_map>
 #include <string>
 
-namespace HTTP {
-namespace Server {
+namespace zion {
 
 struct request
 {
@@ -25,7 +24,5 @@ struct request
   int header_building_state = 0;
 };
 
-
-} // namespace HTTP
-} // namespace Server
+} // namespace zion
 #endif //SLASH_REQUEST_H
