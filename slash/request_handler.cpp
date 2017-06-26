@@ -1,7 +1,7 @@
 //
 // Created by fanshiliang on 2017/6/22.
 //
-
+#include <boost/numeric/conversion/cast.hpp>
 #include "request_handler.h"
 #include <fstream>
 #include <iostream>
@@ -13,17 +13,14 @@ namespace Server {
     request_handler::request_handler(const std::string& doc_root)
     : doc_root_(doc_root)
     {
-        std::cout << "request_handler created" << std::endl;
         std::cout << doc_root << std::endl;
     }
 
     void request_handler::handle_request(const request& req, response& rep)
     {
-        std::cout << "enter handler request" << std::endl;
         std::string path;
         if (!url_decode(req.uri, path))
         {
-            std::cout << path;
             rep = response::stock_reply(response::bad_request);
             return;
         }
@@ -62,7 +59,7 @@ namespace Server {
         char buffer[512];
         while (is.read(buffer, sizeof(buffer)).gcount() > 0)
         {
-            rep.content.append(buffer, is.gcount());
+            rep.content.append(buffer, boost::numeric_cast<long>(is.gcount()));
         }
         rep.headers.resize(2);
         rep.headers[0].key = "Content-Length";
@@ -73,7 +70,6 @@ namespace Server {
 
     bool request_handler::url_decode(const std::string& in, std::string& out)
     {
-        std::cout << "original instream : " + in;
         out.clear();
         out.reserve(in.size());
         for (std::size_t i = 0; i < in.size(); i++)

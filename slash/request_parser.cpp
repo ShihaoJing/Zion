@@ -21,7 +21,6 @@ bool request_parser::parse(request &req, const char *buffer, size_t length) {
   http_parser *parser = new http_parser();
   http_parser_init(parser, HTTP_REQUEST); /* initialise parser */
   parser->data = &req;
-
   size_t nparsed = http_parser_execute(parser, &settings, buffer, length);
   return nparsed == length;
 }
