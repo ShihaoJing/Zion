@@ -2,8 +2,8 @@
 // Created by fanshiliang on 2017/6/22.
 //
 
-#ifndef SLASH_REPLY_H
-#define SLASH_REPLY_H
+#ifndef ZION_RESPONSE_H
+#define ZION_RESPONSE_H
 
 #include <string>
 #include <vector>
@@ -11,8 +11,7 @@
 #include <boost/asio.hpp>
 #include "header.h"
 
-namespace HTTP {
-namespace Server {
+namespace zion {
 
 /// A reply to be sent to a client.
 struct response
@@ -289,7 +288,6 @@ response response::stock_reply(response::status_type status)
   return rep;
 }
 
-} // namespace server
-} // namespace http
+} // namespace zion
 
-#endif //SLASH_REPLY_H
+#endif //ZION_RESPONSE_H

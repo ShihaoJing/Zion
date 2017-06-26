@@ -4,7 +4,7 @@
 
 add_executable(example example.cpp)
 
-#FIND_PACKAGE(Boost COMPONENTS thread system REQUIRED)
-#INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
+FIND_PACKAGE(Boost COMPONENTS thread system REQUIRED)
+INCLUDE_DIRECTORIES(${Boost_INCLUDE_DIR})
 
-#target_link_libraries(main ${Boost_LIBRARIES})
+target_link_libraries(example ${Boost_LIBRARIES})

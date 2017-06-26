@@ -2,11 +2,13 @@
 // Created by Shihao Jing on 6/25/17.
 //
 
-#ifndef SLASH_APP_H
-#define SLASH_APP_H
+#ifndef ZION_APP_H
+#define ZION_APP_H
 
 #include "routing.h"
 #include "request.h"
+#include "server.h"
+#include <memory>
 #include <string>
 
 namespace zion {
@@ -14,25 +16,28 @@ namespace zion {
 class Zion
 {
 public:
-  Zion()
+  Zion(const std::string &address, const std::string &port, const std::string &doc_root)
+      : server_(address, port, doc_root, this)
   {
   }
 
-  void route(std::string url, Router::RequestHandler func) {
+  void route(std::string url, RequestHandler func) {
     router_.add(url, func);
   }
 
-  void handle(const request &req, std::string &res)
-  {
+  void handle(const request &req, response &res) {
     router_.handle(req, res);
   }
 
+  void run() {
+    server_.run();
+  }
+
 private:
-  int port_ = 8080;
-  //std::unique_ptr<HTTP::Server::Server> server_;
+  Server<Zion> server_;
   Router router_;
 };
 
-}
+} //namespace zion
 
-#endif //SLASH_APP_H
+#endif //ZION_APP_H

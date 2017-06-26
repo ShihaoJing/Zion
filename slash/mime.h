@@ -2,16 +2,41 @@
 // Created by fanshiliang on 2017/6/23.
 //
 
-#ifndef SLASH_MIME_H
-#define SLASH_MIME_H
+#ifndef ZION_MIME_H
+#define ZION_MIME_H
 
 #include <string>
 
-namespace HTTP {
-namespace Server {
+namespace zion {
 namespace MIME {
-    std::string extension_to_mime(const std::string extension);
+
+struct mapping
+{
+  const char* extension;
+  const char* mime;
 }
+
+mappings[] =
+{
+  { "gif", "image/gif" },
+  { "htm", "text/html" },
+  { "html", "text/html" },
+  { "jpg", "image/jpeg" },
+  { "png", "image/png" }
+};
+
+std::string extension_to_mime(std::string extension)
+{
+  for (mapping m: mappings)
+  {
+    if (m.extension == extension)
+    {
+      return m.mime;
+    }
+  }
+  return "text/plain";
 }
-}
-#endif //SLASH_MIME_H
+
+} //namespace MIME
+} // namespace zion
+#endif //ZION_MIME_H

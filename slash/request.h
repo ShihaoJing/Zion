@@ -2,8 +2,8 @@
 // Created by Shihao Jing on 6/19/17.
 //
 
-#ifndef SLASH_REQUEST_H
-#define SLASH_REQUEST_H
+#ifndef ZION_REQUEST_H
+#define ZION_REQUEST_H
 
 #include <vector>
 #include <unordered_map>
@@ -25,4 +25,4 @@ struct request
 };
 
 } // namespace zion
-#endif //SLASH_REQUEST_H
+#endif //ZION_REQUEST_H
