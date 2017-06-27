@@ -7,7 +7,6 @@
 
 #include "request.h"
 #include "http_parser.h"
-#include "http_parser.c"
 
 namespace zion {
 

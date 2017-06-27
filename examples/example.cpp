@@ -2,7 +2,7 @@
 // Created by Shihao Jing on 6/25/17.
 //
 
-#include "app.h"
+#include "zion.h"
 
 int main() {
   zion::Zion app("127.0.0.1", "8080", "./");
