@@ -50,14 +50,6 @@ private:
                               std::cout << "start read" << std::endl;
                               if (!ec) {
                                 request_parser_.parse(request_, buffer_.data(), bytes_transferred);
-
-                                std::cout << request_.uri << std::endl;
-                                std::cout << request_.method << std::endl;
-                                std::cout << request_.http_version_major << "." << request_.http_version_minor << std::endl;
-                                for (auto header : request_.headers) {
-                                  std::cout << header.first << " : " << header.second << std::endl;
-                                }
-
                                 handle();
                               }
                               else if (ec != boost::asio::error::operation_aborted) {
