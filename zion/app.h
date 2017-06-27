@@ -16,13 +16,21 @@ namespace zion {
 class Zion
 {
 public:
-  Zion(const std::string &address, const std::string &port, const std::string &doc_root)
-      : server_(address, port, doc_root, this)
-  {
+  typedef Server<Zion> server_t;
+
+  Zion() = default;
+
+  Zion& port(std::string port) {
+    port_ = port;
+    return *this;
   }
 
-  Rule& route(std::string rule)
-  {
+  Zion& bindaddr(std::string bindaddr) {
+    bindaddr_ = bindaddr;
+    return *this;
+  }
+
+  Rule& route(std::string rule) {
     return router_.new_rule(rule);
   }
 
@@ -31,11 +39,15 @@ public:
   }
 
   void run() {
-    server_.run();
+    server_ = std::move(std::unique_ptr<server_t>(new server_t(bindaddr_, port_, doc_root_, this)));
+    server_->run();
   }
 
 private:
-  Server<Zion> server_;
+  std::string port_ = "80";
+  std::string bindaddr_ = "0.0.0.0";
+  std::string doc_root_ = "/var/www/html";
+  std::unique_ptr<server_t> server_;
   Router router_;
 };
 

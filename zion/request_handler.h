@@ -17,8 +17,6 @@
 namespace HTTP {
 namespace Server {
 
-
-
 // The common handler for all incoming requests
 class request_handler
 {

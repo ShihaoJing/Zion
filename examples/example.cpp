@@ -5,11 +5,14 @@
 #include "zion.h"
 
 int main() {
-  zion::Zion app("127.0.0.1", "8080", "./");
+  zion::Zion app;
+
   app.route("/")
   ([]() {   // resp should be response type
     return "hello, world";
   });
 
-  app.run();
+  app.port("8080")
+      .bindaddr("127.0.0.1")
+      .run();
 }
