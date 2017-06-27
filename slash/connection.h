@@ -14,8 +14,8 @@
 
 namespace zion {
 
-template <typename Handler>
-class connection : public std::enable_shared_from_this<connection<Handler>>
+template <typename Handler, typename Manager>
+class connection : public std::enable_shared_from_this<connection<Handler, Manager>>
 {
 public:
   connection(const connection&) = delete;
@@ -23,9 +23,10 @@ public:
 
   // Construct a connection with the given socket.
   explicit connection(boost::asio::ip::tcp::socket socket,
-                      Handler *app)
+                      Handler *handler, Manager *manager)
       : socket_(std::move(socket)),
-        app_(app)
+        handler_(handler),
+        manager_(manager)
   {
   }
 
@@ -48,8 +49,8 @@ private:
                             {
                               std::cout << "start read" << std::endl;
                               if (!ec) {
-                                request_parser::result_type result;
                                 request_parser_.parse(request_, buffer_.data(), bytes_transferred);
+
                                 std::cout << request_.uri << std::endl;
                                 std::cout << request_.method << std::endl;
                                 std::cout << request_.http_version_major << "." << request_.http_version_minor << std::endl;
@@ -58,30 +59,34 @@ private:
                                 }
 
                                 handle();
-                                app_->handle(request_, response_);
-                                complete();
-
                               }
                               else if (ec != boost::asio::error::operation_aborted) {
-                                //connection_manager_->stop(self);
+                                manager_->stop(self);
                               }
                             });
   }
 
-  // put response into buffer
-  void complete() {
-
-  }
-
-
-  // handle request header
   void handle() {
-
+    response_ = handler_->handle(request_);
+    auto write_buffer = response_.to_buffers();
+    do_write(write_buffer);
   }
 
   // Perform an asynchronous write operation.
-  void do_write() {
-    //TODO: send response
+  void do_write(const std::vector<boost::asio::const_buffer>& buffers) {
+    auto self = this->shared_from_this();
+    socket_.async_write_some(buffers,
+                            [this, self](boost::system::error_code ec, std::size_t bytes_transferred)
+                            {
+                              std::cout << "start write" << std::endl;
+                              if (!ec) {
+                                std::cout << "response sent" << std::endl;
+                                manager_->stop(self);
+                              }
+                              else if (ec != boost::asio::error::operation_aborted) {
+                                manager_->stop(self);
+                              }
+                            });
   }
 
   // Socket for the connection.
@@ -99,7 +104,9 @@ private:
 
   request_parser request_parser_;
 
-  Handler *app_;
+  Manager *manager_;
+
+  Handler *handler_;
 };
 
 } // namespace zion

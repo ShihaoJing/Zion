@@ -13,9 +13,12 @@
 
 namespace zion {
 
+
+
 /// A reply to be sent to a client.
 struct response
 {
+
   /// The status of the reply.
   enum status_type
   {
@@ -35,7 +38,20 @@ struct response
     not_implemented = 501,
     bad_gateway = 502,
     service_unavailable = 503
-  } status;
+  } status_ = ok;
+
+  response() = default;
+
+  response(status_type status) : status_(status)
+  {
+  }
+
+  response(std::string body) : content(body)
+  {
+  }
+
+
+
 
   /// The headers to be included in the reply.
   std::vector<header> headers;
@@ -140,7 +156,7 @@ const char crlf[] = { '\r', '\n' };
 std::vector<boost::asio::const_buffer> response::to_buffers()
 {
   std::vector<boost::asio::const_buffer> buffers;
-  buffers.push_back(status_strings::to_buffer(status));
+  buffers.push_back(status_strings::to_buffer(status_));
   for (int i = 0; i < headers.size(); i++)
   {
     buffers.push_back(boost::asio::buffer(headers[i].key));
@@ -278,7 +294,7 @@ std::string to_string(response::status_type status)
 response response::stock_reply(response::status_type status)
 {
   response rep;
-  rep.status = status;
+  rep.status_ = status;
   rep.content = stock_replies::to_string(status);
   rep.headers.resize(2);
   rep.headers[0].key = "Content-Length";

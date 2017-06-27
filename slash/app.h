@@ -21,12 +21,13 @@ public:
   {
   }
 
-  void route(std::string url, RequestHandler func) {
-    router_.add(url, func);
+  Rule& route(std::string rule)
+  {
+    return router_.new_rule(rule);
   }
 
-  void handle(const request &req, response &res) {
-    router_.handle(req, res);
+  response handle(const request &req) {
+    return router_.handle(req);
   }
 
   void run() {

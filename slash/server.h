@@ -8,7 +8,6 @@
 #include <boost/asio.hpp>
 #include <string>
 #include "connection_manager.h"
-#include "connection.h"
 #include "app.h"
 
 namespace zion {
@@ -53,9 +52,9 @@ private:
                              if (!ec)
                              {
                                // start read from socket
-                               auto p = std::make_shared<connection<Handler>>(std::move(socket_),
-                                                                              app_);
-                               p->start();
+                               auto conn = std::make_shared<connection<Handler, connection_manager<Handler>>>(std::move(socket_),
+                                                                                                           app_, &connection_manager_);
+                               connection_manager_.start(conn);
                              }
 
                              do_accept();
@@ -70,6 +69,7 @@ private:
   //connection_manager connection_manager_;
 
   Handler *app_;
+  connection_manager<Handler> connection_manager_;
 };
 
 } // namespace zion

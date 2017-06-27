@@ -10,9 +10,10 @@
 
 namespace zion {
 
-/*class connection_manager {
+template <typename Handler>
+class connection_manager {
 public:
-  typedef std::shared_ptr<connection> connection_ptr;
+  typedef std::shared_ptr<connection<Handler, connection_manager>> connection_ptr;
   connection_manager(const connection_manager&) = delete;
   connection_manager& operator=(const connection_manager&) = delete;
 
@@ -43,7 +44,7 @@ public:
 private:
   // The managed connections.
   std::set<connection_ptr> connections_;
-};*/
+};
 
 } // namespace zion
 #endif //ZION_CONNECTIONMANAGER_H

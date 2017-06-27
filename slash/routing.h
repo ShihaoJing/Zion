@@ -11,7 +11,34 @@
 #include "response.h"
 
 namespace zion {
-typedef void (*RequestHandler)(const request &req, response &res);
+
+class Rule
+{
+public:
+  Rule(std::string rule) : rule_(rule){
+
+  }
+
+  template <typename Func>
+  void operator() (Func f) {
+    handler_ = [f] {
+      return response(f());
+    };
+  }
+
+  bool match (const request &req) {
+    return req.uri == rule_;
+  }
+
+  response handle() {
+    return handler_();
+  }
+
+private:
+  std::string rule_;
+  std::string name_;
+  std::function<response()> handler_;
+};
 
 class Router
 {
@@ -20,23 +47,24 @@ public:
   {
   }
 
-  void add(std::string url, RequestHandler &func) {
-    map_.emplace(url, func);
+  Rule& new_rule(std::string &rule) {
+    rules_.push_back(Rule(rule));
+    return rules_.back();
   }
 
-  void handle(const request &req, response &res)
+  response handle(const request &req)
   {
-    auto iter = map_.find(req.uri);
-    if (iter == map_.end())
-    {
-      // not found
+    for (auto rule: rules_) {
+      if (rule.match(req)) {
+        return rule.handle();
+      }
     }
 
-    (*iter->second)(req, res);
+    return response(response::bad_request);
   }
 
 private:
-  std::unordered_map<std::string, RequestHandler> map_;
+  std::vector<Rule> rules_;
 };
 
 }
