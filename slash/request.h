@@ -2,15 +2,14 @@
 // Created by Shihao Jing on 6/19/17.
 //
 
-#ifndef SLASH_REQUEST_H
-#define SLASH_REQUEST_H
+#ifndef ZION_REQUEST_H
+#define ZION_REQUEST_H
 
 #include <vector>
 #include <unordered_map>
 #include <string>
 
-namespace HTTP {
-namespace Server {
+namespace zion {
 
 struct request
 {
@@ -25,7 +24,5 @@ struct request
   int header_building_state = 0;
 };
 
-
-} // namespace HTTP
-} // namespace Server
-#endif //SLASH_REQUEST_H
+} // namespace zion
+#endif //ZION_REQUEST_H
