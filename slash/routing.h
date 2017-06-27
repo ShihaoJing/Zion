@@ -60,7 +60,7 @@ public:
       }
     }
 
-    return response(response::bad_request);
+    return response(response::not_found);
   }
 
 private:
