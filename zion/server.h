@@ -7,19 +7,18 @@
 
 #include <boost/asio.hpp>
 #include <string>
-#include "connection_manager.h"
-#include "app.h"
+#include "connection.h"
 
 namespace zion {
 
 template <typename Handler>
 class Server {
 public:
-  Server(const std::string &address, const std::string &port, const std::string &doc_root, Handler *app)
+  Server(const std::string &address, const std::string &port, const std::string &doc_root, Handler *handler)
       : io_service_(),
         acceptor_(io_service_),
         socket_(io_service_),
-        app_(app)
+        handler_(handler)
   {
 
     // Open the acceptor with the option to reuse the address (i.e. SO_REUSEADDR).
@@ -52,9 +51,8 @@ private:
                              if (!ec)
                              {
                                // start read from socket
-                               auto conn = std::make_shared<connection<Handler, connection_manager<Handler>>>(std::move(socket_),
-                                                                                                           app_, &connection_manager_);
-                               connection_manager_.start(conn);
+                               auto conn = std::make_shared<connection<Handler>>(std::move(socket_), handler_);
+                               conn->start();
                              }
 
                              do_accept();
@@ -68,8 +66,7 @@ private:
   // The connection manager which owns all live connections.
   //connection_manager connection_manager_;
 
-  Handler *app_;
-  connection_manager<Handler> connection_manager_;
+  Handler *handler_;
 };
 
 } // namespace zion

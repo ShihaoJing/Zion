@@ -14,8 +14,8 @@
 
 namespace zion {
 
-template <typename Handler, typename Manager>
-class connection : public std::enable_shared_from_this<connection<Handler, Manager>>
+template <typename Handler>
+class connection : public std::enable_shared_from_this<connection<Handler>>
 {
 public:
   connection(const connection&) = delete;
@@ -23,10 +23,9 @@ public:
 
   // Construct a connection with the given socket.
   explicit connection(boost::asio::ip::tcp::socket socket,
-                      Handler *handler, Manager *manager)
+                      Handler *handler)
       : socket_(std::move(socket)),
-        handler_(handler),
-        manager_(manager)
+        handler_(handler)
   {
   }
 
@@ -53,7 +52,7 @@ private:
                                 handle();
                               }
                               else if (ec != boost::asio::error::operation_aborted) {
-                                manager_->stop(self);
+                                stop();
                               }
                             });
   }
@@ -73,10 +72,10 @@ private:
                               std::cout << "start write" << std::endl;
                               if (!ec) {
                                 std::cout << "response sent" << std::endl;
-                                manager_->stop(self);
+                                stop();
                               }
                               else if (ec != boost::asio::error::operation_aborted) {
-                                manager_->stop(self);
+                                stop();
                               }
                             });
   }
@@ -87,16 +86,11 @@ private:
   // Buffer for incoming data.
   std::array<char, 8192> buffer_;
 
-  // The manager for this connection.
- // connection_manager *connection_manager_;
-
   response response_;
   // Incoming request
   request request_;
 
   request_parser request_parser_;
-
-  Manager *manager_;
 
   Handler *handler_;
 };

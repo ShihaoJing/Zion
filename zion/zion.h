@@ -7,7 +7,6 @@
 
 #include "app.h"
 #include "connection.h"
-#include "connection_manager.h"
 #include "header.h"
 #include "http_parser.h"
 #include "mime.h"
