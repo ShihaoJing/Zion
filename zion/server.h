@@ -63,9 +63,6 @@ private:
   boost::asio::ip::tcp::acceptor acceptor_;
   boost::asio::ip::tcp::socket socket_;
 
-  // The connection manager which owns all live connections.
-  //connection_manager connection_manager_;
-
   Handler *handler_;
 };
 

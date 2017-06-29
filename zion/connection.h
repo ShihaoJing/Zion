@@ -49,6 +49,7 @@ private:
                               std::cout << "start read" << std::endl;
                               if (!ec) {
                                 request_parser_.parse(request_, buffer_.data(), bytes_transferred);
+                                std::cout << request_.uri << std::endl;
                                 handle();
                               }
                               else if (ec != boost::asio::error::operation_aborted) {
@@ -65,7 +66,7 @@ private:
 
   // Perform an asynchronous write operation.
   void do_write(const std::vector<boost::asio::const_buffer>& buffers) {
-    auto self = this->shared_from_this();
+    auto self = this->shared_from_this() ;
     socket_.async_write_some(buffers,
                             [this, self](boost::system::error_code ec, std::size_t bytes_transferred)
                             {
