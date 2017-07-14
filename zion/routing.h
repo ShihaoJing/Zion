@@ -51,7 +51,6 @@ class Trie
     TrieNode *param_children[PARAMTYPE_NUM] = {};
 
     Rule *rule = nullptr;
-    bool isLeaf = false;
   };
 
   enum class ParamType
@@ -108,7 +107,6 @@ public:
       }
     }
     cur->rule = new Rule(key);
-    cur->isLeaf = true;
     return *(cur->rule);
   }
 

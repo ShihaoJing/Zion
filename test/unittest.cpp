@@ -4,8 +4,6 @@
 
 #include "gtest/gtest.h"
 #include "zion.h"
-#include <string>
-#include <vector>
 
 using namespace zion;
 using namespace std;
@@ -75,4 +73,9 @@ TEST(Routing, Trie) {
     EXPECT_FALSE(trie->search("/id/+123"));
     EXPECT_FALSE(trie->search("/id/-123"));
   }
+}
+
+TEST(Routing, Utility) {
+  EXPECT_TRUE(util::is_int(util::StrWrap("<int>"), 0));
+  EXPECT_FALSE(util::is_int(util::StrWrap("<123>"), 0));
 }

@@ -16,5 +16,6 @@
 #include "response.h"
 #include "routing.h"
 #include "server.h"
+#include "utility.h"
 
 #endif //ZION_ZION_H
