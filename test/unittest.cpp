@@ -78,4 +78,5 @@ TEST(Routing, Trie) {
 TEST(Routing, Utility) {
   EXPECT_TRUE(util::is_int(util::StrWrap("<int>"), 0));
   EXPECT_FALSE(util::is_int(util::StrWrap("<123>"), 0));
+  EXPECT_EQ(util::get_parameter_tag("<int>/<int>"), 7);
 }

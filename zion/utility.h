@@ -67,6 +67,41 @@ constexpr uint64_t get_parameter_tag(StrWrap s, unsigned p = 0) {
     get_parameter_tag(s, p+1);
 }
 
+template <typename ... T>
+struct S
+{
+  template <typename U>
+  using push = S<U, T...>;
+  template <typename U>
+  using push_back = S<T..., U>;
+  template <template<typename ... Args> class U>
+  using rebind = U<T...>;
+};
+
+template <int N>
+struct single_tag_to_type
+{
+};
+
+template <>
+struct single_tag_to_type<1>
+{
+  using type = int64_t;
+};
+
+template <uint64_t Tag>
+struct arguments
+{
+  using subarguments = typename arguments<Tag/6>::type;
+  using type =
+  typename subarguments::template push<typename single_tag_to_type<Tag%6>::type>;
+};
+
+template <>
+struct arguments<0>
+{
+  using type = S<>;
+};
 
 } // namespace util
 } // namespace zion
