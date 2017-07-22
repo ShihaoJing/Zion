@@ -11,6 +11,8 @@
 #include <memory>
 #include <string>
 
+#define ZION_ROUTE(app, url) app.route<zion::util::get_parameter_tag(url)>(url)
+
 namespace zion {
 
 class Zion
@@ -30,8 +32,11 @@ public:
     return *this;
   }
 
-  Rule& route(std::string rule) {
-    return router_.new_rule(rule);
+  template <uint64_t Tag>
+  auto route(std::string rule)
+    -> typename std::result_of<decltype(&Router::new_rule<Tag>)(Router, std::string&)>::type
+  {
+    return router_.new_rule<Tag>(rule);
   }
 
   response handle(const request &req) {

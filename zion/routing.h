@@ -7,25 +7,90 @@
 
 #include <unordered_map>
 #include <string>
+#include <memory>
 #include "request.h"
 #include "response.h"
+#include "utility.h"
 
 #define ALPHABET_SIZE 128
 #define PARAMTYPE_NUM  6
 
 namespace zion {
 
-class Rule
+class BaseRule
 {
- public:
-  Rule(std::string rule) : rule_(rule){
+public:
+  BaseRule(std::string rule)
+      : rule_(rule)
+  {
+  }
+
+  virtual ~BaseRule()
+  {
+  }
+
+  BaseRule& name(std::string name) {
+    name_ = name;
+    return *this;
+  }
+
+  //virtual void validate();
+
+  virtual response handle(const request&, const util::routing_param&)
+  {
+    return response(response::not_found);
+  }
+
+  std::string rule_;
+  std::string name_;
+};
+
+template <typename ... Args>
+class Rule : public BaseRule
+{
+private:
+  template <typename T, int Pos>
+  struct call_pair
+  {
+    using type = T;
+    static const int pos = Pos;
+  };
+
+  template <typename F, int NInt, int NUint, int NDouble, int NString, typename S1, typename S2> struct call
+  {
+  };
+
+  template <typename F, int NInt, int NUint, int NDouble, int NString, typename ... Args1, typename ... Args2>
+  struct call<F, NInt, NUint, NDouble, NString, util::S<int64_t, Args1...>, util::S<Args2...>>
+  {
+    response operator()(F& handler, const util::routing_param& params)
+    {
+      using pushed = typename util::S<Args2...>::template push_back<call_pair<int64_t, NInt>>;
+      return call<F, NInt+1, NUint, NDouble, NString,
+                  util::S<Args1...>, pushed>()(handler, params);
+    }
+  };
+
+  template <typename F, int NInt, int NUint, int NDouble, int NString, typename ... Args1>
+  struct call<F, NInt, NUint, NDouble, NString, util::S<>, util::S<Args1...>>
+  {
+    response operator()(F& handler, const util::routing_param& params)
+    {
+      return handler(
+          params.get<typename Args1::type>(Args1::pos)...
+      );
+      //return response(500);
+    }
+  };
+public:
+  Rule(std::string rule) : BaseRule(rule){
 
   }
 
   template <typename Func>
   void operator() (Func f) {
-    handler_ = [f] {
-      return response(f());
+    handler_ = [f](Args ... args) {
+      return response(f(args...));
     };
   }
 
@@ -33,14 +98,12 @@ class Rule
     return req.uri == rule_;
   }
 
-  response handle() {
-    return handler_();
+  response handle(const request&, const util::routing_param &params) {
+    return call<decltype(handler_), 0, 0, 0, 0, util::S<Args...>, util::S<>>()(handler_, params);
   }
 
- private:
-  std::string rule_;
-  std::string name_;
-  std::function<response()> handler_;
+private:
+  std::function<response(Args...)> handler_;
 };
 
 class Trie
@@ -50,7 +113,7 @@ class Trie
     TrieNode *children[ALPHABET_SIZE] = {};
     TrieNode *param_children[PARAMTYPE_NUM] = {};
 
-    Rule *rule = nullptr;
+    int rule_index = -1;
   };
 
   enum class ParamType
@@ -69,7 +132,7 @@ public:
   {
   }
 
-  Rule& insert(std::string key) {
+   void insert(std::string key, int rule_index) {
     TrieNode *cur = root_;
     for (int i = 0; i < key.length(); ++i) {
       char c = key[i];
@@ -99,25 +162,24 @@ public:
         }
       }
       else {
-        int index = key[i] - '!';
+        int index = key[i];
         if (!cur->children[index]) {
           cur->children[index] = new TrieNode;
         }
         cur = cur->children[index];
       }
     }
-    cur->rule = new Rule(key);
-    return *(cur->rule);
+    cur->rule_index = rule_index;
   }
 
-  Rule* search(std::string key) {
+  int search(std::string key, util::routing_param &routing_params) {
     TrieNode *cur = root_;
     for (size_t i = 0; i < key.length(); /* */) {
       char c = key[i];
       if (c == '/') {
-        int index = key[i] - '!';
+        int index = key[i];
         if (!cur->children[index])
-          return nullptr;
+          return -1;
         cur = cur->children[index];
         ++i;
       }
@@ -131,10 +193,11 @@ public:
             if ( j != i && (key[j] < '0' || key[j] > '9'))
               break;
             if (key[j] == '-') type = -1;
-            value = value * 10 + key[j] - '0';
+            if (key[j] != '+' && key[j] != '-') value = value * 10 + key[j] - '0';
             ++j;
           }
           if (j == key.length() || key[j] == '/') {
+            routing_params.int_params.push_back(value * type);
             i = j;
             cur = cur->param_children[0];
             continue;
@@ -143,17 +206,19 @@ public:
 
         // no param pattern match, do normal path matching
         while (i < key.length() && key[i] != '/') {
-          int index = key[i] - '!';
+          int index = key[i];
           if (!cur->children[index])
-            return nullptr;
+            return -1;
           cur = cur->children[index];
           ++i;
         }
       }
     }
-    if (cur == nullptr || cur->rule == nullptr)
-      return nullptr;
-    else return cur->rule;
+
+    if (cur == nullptr || cur->rule_index == -1)
+      return -1;
+
+    return cur->rule_index;
   }
 
 private:
@@ -167,20 +232,28 @@ public:
   {
   }
 
-  Rule& new_rule(std::string &rule) {
-    return trie_.insert(rule);
+  template <uint64_t N>
+  typename util::arguments<N>::type::template rebind<Rule>&
+  new_rule(std::string rule) {
+    using RuleT = typename util::arguments<N>::type::template rebind<Rule>;
+    auto ruleObject = new RuleT(rule);
+    rules_.emplace_back(ruleObject);
+    trie_.insert(rule, rules_.size() - 1);
+    return *ruleObject;
   }
 
   response handle(const request &req)
   {
-    Rule *rule = trie_.search(req.uri);
-    if (rule)
-      return rule->handle();
+    util::routing_param routing_params;
+    int rule_index = trie_.search(req.uri, routing_params);
+    if (rule_index != -1)
+      return rules_[rule_index]->handle(req, routing_params);
 
     return response(response::not_found);
   }
 
 private:
+  std::vector<std::unique_ptr<BaseRule>> rules_;
   Trie trie_;
 };
 

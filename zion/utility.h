@@ -5,6 +5,8 @@
 #ifndef ZION_UTILITY_H
 #define ZION_UTILITY_H
 
+#include <vector>
+
 namespace zion {
 namespace util {
 
@@ -102,6 +104,24 @@ struct arguments<0>
 {
   using type = S<>;
 };
+
+struct routing_param
+{
+  std::vector<int64_t> int_params;
+  std::vector<uint64_t> uint_params;
+  std::vector<double> double_params;
+  std::vector<std::string> string_params;
+
+  template <typename T>
+  T get(unsigned) const;
+
+};
+
+template<>
+int64_t routing_param::get<int64_t>(unsigned index) const
+{
+  return int_params.at(index);
+}
 
 } // namespace util
 } // namespace zion
