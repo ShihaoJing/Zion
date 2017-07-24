@@ -11,12 +11,17 @@ using namespace std;
 TEST(Routing, SimplePath) {
   Zion app;
   ZION_ROUTE(app, "/<int>")
-      ([]() {   // resp should be response type
+      ([](int a) {   // resp should be response type
         return "hello, world";
       });
   ZION_ROUTE(app, "/hello/<int>")
-      ([]() {   // resp should be response type
+      ([](int a) {   // resp should be response type
         return "hello";
+      });
+
+  app.route("/")
+      ([]{
+        return "hello world";
       });
 
   {
@@ -24,20 +29,6 @@ TEST(Routing, SimplePath) {
     req.uri = "/";
     response res = app.handle(req);
     EXPECT_EQ(static_cast<int>(response::ok), static_cast<int>(res.status_));
-  }
-
-  {
-    request req;
-    req.uri = "/hello";
-    response res = app.handle(req);
-    EXPECT_EQ(static_cast<int>(response::ok), static_cast<int>(res.status_));
-  }
-
-  {
-    request req;
-    req.uri = "/posts";
-    response res = app.handle(req);
-    EXPECT_EQ(static_cast<int>(response::not_found), static_cast<int>(res.status_));
   }
 }
 

@@ -45,8 +45,45 @@ public:
   std::string name_;
 };
 
-template <typename ... Args>
 class Rule : public BaseRule
+{
+public:
+  Rule(std::string rule)
+      : BaseRule(rule)
+  {
+  }
+
+  Rule& name(std::string name) {
+    name_ = name;
+    return *this;
+  }
+
+  template <typename Func>
+  void operator() (Func f) {
+    handler_ = [f] {
+      return response(f());
+    };
+  }
+
+  template <typename Func>
+  void operator() (std::string name, Func f) {
+    name_ = name;
+    handler_ = [f] {
+      return response(f());
+    };
+  }
+
+  response handle(const request&, const util::routing_param&) {
+    return handler_();
+  }
+
+private:
+  std::function<response()> handler_;
+};
+
+
+template <typename ... Args>
+class ParamRule : public BaseRule
 {
 private:
   template <typename T, int Pos>
@@ -83,7 +120,7 @@ private:
     }
   };
 public:
-  Rule(std::string rule) : BaseRule(rule){
+  ParamRule(std::string rule) : BaseRule(rule){
 
   }
 
@@ -233,13 +270,19 @@ public:
   }
 
   template <uint64_t N>
-  typename util::arguments<N>::type::template rebind<Rule>&
-  new_rule(std::string rule) {
-    using RuleT = typename util::arguments<N>::type::template rebind<Rule>;
+  typename util::arguments<N>::type::template rebind<ParamRule>& new_param_rule(std::string rule) {
+    using RuleT = typename util::arguments<N>::type::template rebind<ParamRule>;
     auto ruleObject = new RuleT(rule);
     rules_.emplace_back(ruleObject);
     trie_.insert(rule, rules_.size() - 1);
     return *ruleObject;
+  }
+
+  Rule& new_rule(std::string rule) {
+    Rule *r(new Rule(rule));
+    rules_.emplace_back(r);
+    trie_.insert(rule, rules_.size() - 1);
+    return *r;
   }
 
   response handle(const request &req)
