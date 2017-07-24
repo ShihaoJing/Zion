@@ -33,47 +33,48 @@ TEST(Routing, SimplePath) {
 }
 
 TEST(Routing, Trie) {
-  /*{
+  {
     Trie *trie = new Trie;
 
     vector<string> keys = {"/", "/hello", "/id/<int>"};
-    for (auto key : keys) {
-      trie->insert(key);
-    }
+    for (int i = 0; i < keys.size(); ++i)
+      trie->insert(keys[i], i);
 
     util::routing_param routing_params;
-    EXPECT_TRUE(trie->search("/", routing_params));
-    EXPECT_TRUE(trie->search("/hello", routing_params));
-    EXPECT_TRUE(trie->search("/id/123", routing_params));
+    EXPECT_EQ(0, trie->search("/", routing_params));
+    EXPECT_EQ(1, trie->search("/hello", routing_params));
+    EXPECT_EQ(2, trie->search("/id/123", routing_params));
     EXPECT_EQ(123, routing_params.int_params.back());
-    EXPECT_TRUE(trie->search("/id/+123", routing_params));
+    EXPECT_EQ(2, trie->search("/id/+123", routing_params));
     EXPECT_EQ(123, routing_params.int_params.back());
-    EXPECT_TRUE(trie->search("/id/-123", routing_params));
+    EXPECT_EQ(2, trie->search("/id/-123", routing_params));
     EXPECT_EQ(-123, routing_params.int_params.back());
-    EXPECT_FALSE(trie->search("/hello/12a", routing_params));
+    EXPECT_EQ(-1, trie->search("/hello/12a", routing_params));
     EXPECT_EQ(-123, routing_params.int_params.back());
   }
 
   {
     Trie *trie = new Trie;
 
-    vector<string> keys = {"/hello/", "/id/<int>/"};
-    for (auto key : keys) {
-      trie->insert(key);
-    }
+    vector<string> keys = {"/", "/hello/", "/id/<int>/"};
+    for (int i = 0; i < keys.size(); ++i)
+      trie->insert(keys[i], i);
 
     util::routing_param routing_params;
-    EXPECT_TRUE(trie->search("/id/123/", routing_params));
+    EXPECT_EQ(2, trie->search("/id/123/", routing_params));
     // below examples need to be redirected with trailing slash to make TRUE
-    EXPECT_FALSE(trie->search("/hello", routing_params));
-    EXPECT_FALSE(trie->search("/id/123", routing_params));
-    EXPECT_FALSE(trie->search("/id/+123", routing_params));
-    EXPECT_FALSE(trie->search("/id/-123", routing_params));
-  }*/
+    EXPECT_EQ(-1, trie->search("/hello", routing_params));
+    EXPECT_EQ(-1, trie->search("/id/123", routing_params));
+    EXPECT_EQ(-1, trie->search("/id/+123", routing_params));
+    EXPECT_EQ(-1, trie->search("/id/-123", routing_params));
+  }
 }
 
-TEST(Routing, Utility) {
-  EXPECT_TRUE(util::is_int(util::StrWrap("<int>"), 0));
-  EXPECT_FALSE(util::is_int(util::StrWrap("<123>"), 0));
-  EXPECT_EQ(util::get_parameter_tag("<int>/<int>"), 7);
+TEST(Routing, Tagging) {
+  EXPECT_EQ(util::get_parameter_tag("<int>"), 1);
+  EXPECT_EQ(util::get_parameter_tag("<float>"), 2);
+  EXPECT_EQ(util::get_parameter_tag("<string>"), 3);
+  EXPECT_EQ(util::get_parameter_tag("<int><int>"), 7);
+  EXPECT_EQ(util::get_parameter_tag("<float><float>"), 14);
+  EXPECT_EQ(util::get_parameter_tag("<string><string>"), 21);
 }

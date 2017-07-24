@@ -60,12 +60,25 @@ constexpr bool is_int(StrWrap s, unsigned i) {
   return is_equ_n(s, i, "<int>", 0, 5);
 }
 
+constexpr bool is_float(StrWrap s, unsigned i) {
+  return is_equ_n(s, i, "<float>", 0, 7);
+}
+
+constexpr bool is_str(StrWrap s, unsigned i) {
+  return is_equ_n(s, i, "<string>", 0, 8);
+}
+
+
 constexpr uint64_t get_parameter_tag(StrWrap s, unsigned p = 0) {
   return
     p == s.size() ? 0 :
     s[p] == '<' ?
-        (is_int(s, p) ? get_parameter_tag(s, find_closing_tag(s, p)) * 6 + 1
-         : throw std::runtime_error("invalid parameter type") ) :
+        (
+            is_int(s, p) ? get_parameter_tag(s, find_closing_tag(s, p)) * 6 + 1 
+            : is_float(s, p) ? get_parameter_tag(s, find_closing_tag(s,p)) * 6 + 2
+            : is_str(s, p) ? get_parameter_tag(s, find_closing_tag(s,p)) * 6 + 3
+            : throw std::runtime_error("invalid parameter type") 
+        ) :
     get_parameter_tag(s, p+1);
 }
 
@@ -120,7 +133,7 @@ struct routing_param
 template<>
 int64_t routing_param::get<int64_t>(unsigned index) const
 {
-  return int_params.at(index);
+  return int_params[index];
 }
 
 } // namespace util

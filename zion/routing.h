@@ -241,6 +241,9 @@ public:
           }
         }
 
+        //TODO: match <float> pattern
+        //TODO: match <string> pattern
+
         // no param pattern match, do normal path matching
         while (i < key.length() && key[i] != '/') {
           int index = key[i];
