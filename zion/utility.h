@@ -93,6 +93,23 @@ struct S
   using rebind = U<T...>;
 };
 
+template <typename F, typename ... Args>
+struct CallChecker;
+
+template <typename  F, typename  ... Args>
+struct CallChecker<F, S<Args...>>
+{
+  template <typename F1, typename ...Args1, typename =
+  decltype(std::declval<F1>()(std::declval<Args1>()...))
+  >
+  static char __test(int);
+
+  template <typename ...>
+  static int __test(...);
+
+  static constexpr bool value = sizeof(__test<F, Args...>(0)) == sizeof(char);
+};
+
 template <int N>
 struct single_tag_to_type
 {

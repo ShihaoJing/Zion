@@ -22,9 +22,9 @@ int main() {
         return zion::response(os.str());
       });
 
-  app.route("/index")
-      ([](){
-        return "hello world";
+  ZION_ROUTE(app, "/index")
+      ([](const zion::request &req){
+        return req.uri;
       });
 
   app.port("8080")

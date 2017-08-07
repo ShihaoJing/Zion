@@ -93,6 +93,15 @@ private:
     static const int pos = Pos;
   };
 
+  template <typename H1, typename H2>
+  struct call_params
+  {
+    H1 &handler;
+    H2 &handler_with_req;
+    const util::routing_param &params;
+    const request &req;
+  };
+
   template <typename F, int NInt, int NFloat, int NString, typename S1, typename S2> struct call
   {
   };
@@ -100,33 +109,33 @@ private:
   template <typename F, int NInt, int NFloat, int NString, typename ... Args1, typename ... Args2>
   struct call<F, NInt, NFloat, NString, util::S<int64_t, Args1...>, util::S<Args2...>>
   {
-    response operator()(F& handler, const util::routing_param& params)
+    static response handle(F &cparams)
     {
       using pushed = typename util::S<Args2...>::template push_back<call_pair<int64_t, NInt>>;
       return call<F, NInt+1, NFloat, NString,
-                  util::S<Args1...>, pushed>()(handler, params);
+                  util::S<Args1...>, pushed>::handle(cparams);
     }
   };
 
   template <typename F, int NInt, int NFloat, int NString, typename ... Args1, typename ... Args2>
   struct call<F, NInt, NFloat, NString, util::S<float_t, Args1...>, util::S<Args2...>>
   {
-    response operator()(F& handler, const util::routing_param& params)
+    static response handle(F &cparams)
     {
       using pushed = typename util::S<Args2...>::template push_back<call_pair<float_t, NFloat>>;
       return call<F, NInt, NFloat+1, NString,
-                  util::S<Args1...>, pushed>()(handler, params);
+                  util::S<Args1...>, pushed>::handle(cparams);
     }
   };
 
   template <typename F, int NInt, int NFloat, int NString, typename ... Args1, typename ... Args2>
   struct call<F, NInt, NFloat, NString, util::S<std::string, Args1...>, util::S<Args2...>>
   {
-    response operator()(F& handler, const util::routing_param& params)
+    static response handle(F &cparams)
     {
       using pushed = typename util::S<Args2...>::template push_back<call_pair<std::string, NString>>;
       return call<F, NInt, NFloat, NString+1,
-                  util::S<Args1...>, pushed>()(handler, params);
+                  util::S<Args1...>, pushed>::handle(cparams);
     }
   };
 
@@ -134,12 +143,15 @@ private:
   template <typename F, int NInt, int NFloat, int NString, typename ... Args1>
   struct call<F, NInt, NFloat, NString, util::S<>, util::S<Args1...>>
   {
-    response operator()(F& handler, const util::routing_param& params)
+    static response handle(F &cparams)
     {
-      return handler(
-          params.get<typename Args1::type>(Args1::pos)...
-      );
-      //return response(500);
+      if (cparams.handler) {
+        return cparams.handler(cparams.params.template get<typename Args1::type>(Args1::pos)... );
+      }
+      if (cparams.handler_with_req) {
+        return cparams.handler_with_req(cparams.req, cparams.params.template get<typename Args1::type>(Args1::pos)... );
+      }
+      return response::not_found;
     }
   };
 public:
@@ -148,9 +160,26 @@ public:
   }
 
   template <typename Func>
-  void operator() (Func f) {
+  typename std::enable_if<util::CallChecker<Func, util::S<Args...>>::value, void>::type
+  operator() (Func f) {
+    static_assert(util::CallChecker<Func, util::S<Args...>>::value,
+                  "Handler types mismatch with URL args");
+    static_assert(!std::is_same<void, decltype(f(std::declval<Args>()...))>::value,
+                  "Handler function cannot have void return type");
     handler_ = [f](Args ... args) {
       return response(f(args...));
+    };
+  }
+
+  template <typename Func>
+  typename std::enable_if<!util::CallChecker<Func, util::S<Args...>>::value, void>::type
+  operator() (Func f) {
+    static_assert(util::CallChecker<Func, util::S<request, Args...>>::value,
+                  "Handler types mismatch with URL args");
+    static_assert(!std::is_same<void, decltype(f(std::declval<request>(), std::declval<Args>()...))>::value,
+                  "Handler function cannot have void return type");
+    handler_with_req_ = [f](const request &req, Args ... args) {
+      return response(f(req, args...));
     };
   }
 
@@ -158,12 +187,16 @@ public:
     return req.uri == rule_;
   }
 
-  response handle(const request&, const util::routing_param &params) {
-    return call<decltype(handler_), 0, 0, 0, util::S<Args...>, util::S<>>()(handler_, params);
+  response handle(const request& req, const util::routing_param &params) {
+    call_params<decltype(handler_), decltype(handler_with_req_)> cp{handler_, handler_with_req_, params, req};
+    return
+        call<call_params<decltype(handler_), decltype(handler_with_req_)>, 0, 0, 0, util::S<Args...>, util::S<>>
+        ::handle(cp);
   }
 
 private:
   std::function<response(Args...)> handler_;
+  std::function<response(request, Args...)> handler_with_req_;
 };
 
 class Trie

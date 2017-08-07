@@ -32,14 +32,15 @@ public:
     return *this;
   }
 
-  template <uint64_t Tag>
+  template <int64_t Tag>
   auto route(std::string rule)
-    -> typename std::result_of<decltype(&Router::new_param_rule<Tag>)(Router, std::string&)>::type
+    -> typename std::result_of<decltype(&Router::new_param_rule<Tag>)(Router, std::string)>::type
   {
     return router_.new_param_rule<Tag>(rule);
   }
 
-  Rule& route(std::string rule)
+  auto route(std::string rule)
+    -> typename std::result_of<decltype(&Router::new_rule)(Router, std::string)>::type
   {
     return router_.new_rule(rule);
   }
