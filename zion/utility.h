@@ -104,6 +104,12 @@ struct single_tag_to_type<1>
   using type = int64_t;
 };
 
+template <>
+struct single_tag_to_type<2>
+{
+  using type = float_t;
+};
+
 template <uint64_t Tag>
 struct arguments
 {
@@ -121,8 +127,7 @@ struct arguments<0>
 struct routing_param
 {
   std::vector<int64_t> int_params;
-  std::vector<uint64_t> uint_params;
-  std::vector<double> double_params;
+  std::vector<float_t> float_params;
   std::vector<std::string> string_params;
 
   template <typename T>
@@ -134,6 +139,12 @@ template<>
 int64_t routing_param::get<int64_t>(unsigned index) const
 {
   return int_params[index];
+}
+
+template<>
+float_t routing_param::get<float_t>(unsigned index) const
+{
+  return float_params[index];
 }
 
 } // namespace util

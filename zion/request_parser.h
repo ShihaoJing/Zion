@@ -90,7 +90,6 @@ public:
   static int on_message_complete(http_parser* parser)
   {
     request *req = static_cast<request*>(parser->data);
-    // TODO: parse url params
     return 0;
   }
 

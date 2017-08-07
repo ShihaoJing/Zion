@@ -93,23 +93,35 @@ private:
     static const int pos = Pos;
   };
 
-  template <typename F, int NInt, int NUint, int NDouble, int NString, typename S1, typename S2> struct call
+  template <typename F, int NInt, int NFloat, int NString, typename S1, typename S2> struct call
   {
   };
 
-  template <typename F, int NInt, int NUint, int NDouble, int NString, typename ... Args1, typename ... Args2>
-  struct call<F, NInt, NUint, NDouble, NString, util::S<int64_t, Args1...>, util::S<Args2...>>
+  template <typename F, int NInt, int NFloat, int NString, typename ... Args1, typename ... Args2>
+  struct call<F, NInt, NFloat, NString, util::S<int64_t, Args1...>, util::S<Args2...>>
   {
     response operator()(F& handler, const util::routing_param& params)
     {
       using pushed = typename util::S<Args2...>::template push_back<call_pair<int64_t, NInt>>;
-      return call<F, NInt+1, NUint, NDouble, NString,
+      return call<F, NInt+1, NFloat, NString,
                   util::S<Args1...>, pushed>()(handler, params);
     }
   };
 
-  template <typename F, int NInt, int NUint, int NDouble, int NString, typename ... Args1>
-  struct call<F, NInt, NUint, NDouble, NString, util::S<>, util::S<Args1...>>
+  template <typename F, int NInt, int NFloat, int NString, typename ... Args1, typename ... Args2>
+  struct call<F, NInt, NFloat, NString, util::S<float_t, Args1...>, util::S<Args2...>>
+  {
+    response operator()(F& handler, const util::routing_param& params)
+    {
+      using pushed = typename util::S<Args2...>::template push_back<call_pair<float_t, NFloat>>;
+      return call<F, NInt, NFloat+1, NString,
+                  util::S<Args1...>, pushed>()(handler, params);
+    }
+  };
+
+
+  template <typename F, int NInt, int NFloat, int NString, typename ... Args1>
+  struct call<F, NInt, NFloat, NString, util::S<>, util::S<Args1...>>
   {
     response operator()(F& handler, const util::routing_param& params)
     {
@@ -136,7 +148,7 @@ public:
   }
 
   response handle(const request&, const util::routing_param &params) {
-    return call<decltype(handler_), 0, 0, 0, 0, util::S<Args...>, util::S<>>()(handler_, params);
+    return call<decltype(handler_), 0, 0, 0, util::S<Args...>, util::S<>>()(handler_, params);
   }
 
 private:
@@ -155,7 +167,8 @@ class Trie
 
   enum class ParamType
   {
-    INT
+    INT,
+    FLOAT
   };
 
   struct ParamTraits
@@ -179,6 +192,7 @@ public:
         static ParamTraits paramTraits[] =
             {
                 { ParamType::INT, "<int>" },
+                { ParamType::FLOAT, "<float>"}
             };
 
         for(auto it = std::begin(paramTraits); it != std::end(paramTraits); ++it)
@@ -221,28 +235,47 @@ public:
         ++i;
       }
       else {
-        // match <int> pattern
-        if (cur->param_children[0]) {
-          long long value = 0;
-          int type = 1;
-          int j = i;
-          while (j < key.length()) {
-            if ( j != i && (key[j] < '0' || key[j] > '9'))
-              break;
-            if (key[j] == '-') type = -1;
-            if (key[j] != '+' && key[j] != '-') value = value * 10 + key[j] - '0';
-            ++j;
+        /*try to match param pattern*/
+        int j = key.find_first_of('/', i);
+        if (j == std::string::npos)
+          j = key.length() - 1;
+        else --j;
+        bool matched = false;
+
+        std::string arg_substr = key.substr(i, j - i + 1);
+
+        try {
+          float_t value1 = std::stof(arg_substr);
+          int64_t value2 = std::stoi(arg_substr);
+          if (value1 == value2) { // if arg can be interpreted as both int and float, try float first
+            if (cur->param_children[1]) {
+              routing_params.float_params.push_back(value1);
+              i = j + 1;
+              cur = cur->param_children[1];
+              matched = true;
+            }
+            if (cur->param_children[0]) {
+              routing_params.int_params.push_back(value2);
+              i = j + 1;
+              cur = cur->param_children[0];
+              matched = true;
+            }
           }
-          if (j == key.length() || key[j] == '/') {
-            routing_params.int_params.push_back(value * type);
-            i = j;
-            cur = cur->param_children[0];
-            continue;
+          else {
+            if (cur->param_children[1]) {
+              routing_params.float_params.push_back(value1);
+              i = j + 1;
+              cur = cur->param_children[1];
+              matched = true;
+            }
           }
         }
+        catch(std::exception const & e)
+        {
+          // do nothing
+        }
 
-        //TODO: match <float> pattern
-        //TODO: match <string> pattern
+        if (matched) continue;
 
         // no param pattern match, do normal path matching
         while (i < key.length() && key[i] != '/') {
