@@ -8,10 +8,10 @@
 int main() {
   zion::Zion app;
 
-  ZION_ROUTE(app, "/id/<int>/weight/<float>")
-      ([](int id, float_t weight) {   // resp should be response type
+  ZION_ROUTE(app, "/name/<string>/id/<int>/weight/<float>")
+      ([](std::string name, int id, float_t weight) {   // resp should be response type
         std::ostringstream os;
-        os << "id is " << id << " and weight is " << weight;
+        os << "name is " << name << " id is " << id << " and weight is " << weight;
         return zion::response(os.str());
       });
 

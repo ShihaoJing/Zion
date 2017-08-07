@@ -110,6 +110,12 @@ struct single_tag_to_type<2>
   using type = float_t;
 };
 
+template <>
+struct single_tag_to_type<3>
+{
+  using type = std::string;
+};
+
 template <uint64_t Tag>
 struct arguments
 {
@@ -145,6 +151,12 @@ template<>
 float_t routing_param::get<float_t>(unsigned index) const
 {
   return float_params[index];
+}
+
+template<>
+std::string routing_param::get<std::string>(unsigned index) const
+{
+  return string_params[index];
 }
 
 } // namespace util

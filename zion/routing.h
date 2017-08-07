@@ -119,6 +119,17 @@ private:
     }
   };
 
+  template <typename F, int NInt, int NFloat, int NString, typename ... Args1, typename ... Args2>
+  struct call<F, NInt, NFloat, NString, util::S<std::string, Args1...>, util::S<Args2...>>
+  {
+    response operator()(F& handler, const util::routing_param& params)
+    {
+      using pushed = typename util::S<Args2...>::template push_back<call_pair<std::string, NString>>;
+      return call<F, NInt, NFloat, NString+1,
+                  util::S<Args1...>, pushed>()(handler, params);
+    }
+  };
+
 
   template <typename F, int NInt, int NFloat, int NString, typename ... Args1>
   struct call<F, NInt, NFloat, NString, util::S<>, util::S<Args1...>>
@@ -168,7 +179,8 @@ class Trie
   enum class ParamType
   {
     INT,
-    FLOAT
+    FLOAT,
+    STRING
   };
 
   struct ParamTraits
@@ -192,7 +204,8 @@ public:
         static ParamTraits paramTraits[] =
             {
                 { ParamType::INT, "<int>" },
-                { ParamType::FLOAT, "<float>"}
+                { ParamType::FLOAT, "<float>"},
+                { ParamType::STRING, "<string>"}
             };
 
         for(auto it = std::begin(paramTraits); it != std::end(paramTraits); ++it)
@@ -244,36 +257,42 @@ public:
 
         std::string arg_substr = key.substr(i, j - i + 1);
 
-        try {
-          float_t value1 = std::stof(arg_substr);
-          int64_t value2 = std::stoi(arg_substr);
-          if (value1 == value2) { // if arg can be interpreted as both int and float, try float first
-            if (cur->param_children[1]) {
-              routing_params.float_params.push_back(value1);
-              i = j + 1;
-              cur = cur->param_children[1];
-              matched = true;
-            }
-            if (cur->param_children[0]) {
-              routing_params.int_params.push_back(value2);
-              i = j + 1;
-              cur = cur->param_children[0];
-              matched = true;
-            }
+        // <float> pattern
+        if (cur->param_children[1]) {
+          try {
+            float_t value = std::stof(arg_substr);
+            routing_params.float_params.push_back(value);
+            i = j + 1;
+            cur = cur->param_children[1];
+            matched = true;
           }
-          else {
-            if (cur->param_children[1]) {
-              routing_params.float_params.push_back(value1);
-              i = j + 1;
-              cur = cur->param_children[1];
-              matched = true;
-            }
+          catch(std::exception const & e) {
+            // do nothing
           }
         }
-        catch(std::exception const & e)
-        {
-          // do nothing
+
+        // <int> pattern
+        if (cur->param_children[0]) {
+          try {
+            int64_t value = std::stoi(arg_substr);
+            routing_params.int_params.push_back(value);
+            i = j + 1;
+            cur = cur->param_children[0];
+            matched = true;
+          }
+          catch(std::exception const & e) {
+            // do nothing
+          }
         }
+
+        // <string> pattern
+        if (cur->param_children[2]) {
+          routing_params.string_params.push_back(arg_substr);
+          cur = cur->param_children[2];
+          i = j + 1;
+          matched = true;
+        }
+
 
         if (matched) continue;
 

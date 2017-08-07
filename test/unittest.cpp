@@ -36,7 +36,7 @@ TEST(Routing, Trie) {
   {
     Trie *trie = new Trie;
 
-    vector<string> keys = {"/id/<int>", "/weight/<float>"};
+    vector<string> keys = {"/id/<int>", "/weight/<float>", "/name/<string>"};
     for (int i = 0; i < keys.size(); ++i)
       trie->insert(keys[i], i);
 
@@ -45,6 +45,8 @@ TEST(Routing, Trie) {
     ASSERT_FLOAT_EQ(1.23, routing_params.float_params.back());
     ASSERT_EQ(0, trie->search("/id/123", routing_params));
     ASSERT_EQ(123, routing_params.int_params.back());
+    ASSERT_EQ(2, trie->search("/name/hodor", routing_params));
+    EXPECT_EQ("hodor", routing_params.string_params.back());
     /*
     EXPECT_EQ(0, trie->search("/", routing_params));
     EXPECT_EQ(1, trie->search("/hello", routing_params));
