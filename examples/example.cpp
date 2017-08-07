@@ -5,7 +5,16 @@
 #include "zion.h"
 #include <sstream>
 
+#include "rapidjson/document.h"
+#include "rapidjson/writer.h"
+#include "rapidjson/stringbuffer.h"
+
+using namespace rapidjson;
+using namespace zion;
+
 int main() {
+
+
   zion::Zion app;
 
   ZION_ROUTE(app, "/name/<string>/id/<int>/weight/<float>")
@@ -24,7 +33,17 @@ int main() {
 
   ZION_ROUTE(app, "/index")
       ([](const zion::request &req){
-        return req.uri;
+        Document d;
+        d.Parse(req.body.data());
+        // 2. Modify it by DOM.
+        Value& s = d["stars"];
+        s.SetInt(s.GetInt() + 1);
+
+        // 3. Stringify the DOM
+        StringBuffer buffer;
+        Writer<StringBuffer> writer(buffer);
+        d.Accept(writer);
+        return buffer.GetString();
       });
 
   app.port("8080")

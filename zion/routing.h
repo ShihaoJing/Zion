@@ -173,12 +173,12 @@ public:
 
   template <typename Func>
   typename std::enable_if<!util::CallChecker<Func, util::S<Args...>>::value, void>::type
-  operator() (Func f) {
+  operator() (Func &&f) {
     static_assert(util::CallChecker<Func, util::S<request, Args...>>::value,
                   "Handler types mismatch with URL args");
     static_assert(!std::is_same<void, decltype(f(std::declval<request>(), std::declval<Args>()...))>::value,
                   "Handler function cannot have void return type");
-    handler_with_req_ = [f](const request &req, Args ... args) {
+    handler_with_req_ = [f = std::move(f)](const request &req, Args ... args) {
       return response(f(req, args...));
     };
   }

@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.7)
 project(Zion)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 14)
 
 find_package(Boost COMPONENTS thread system REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
-set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/zion)
+set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/zion ${PROJECT_SOURCE_DIR}/include)
 
 include_directories("${PROJECT_INCLUDE_DIR}")
 include_directories("${PROJECT_SOURCE_DIR}")
