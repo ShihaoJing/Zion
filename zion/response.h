@@ -50,9 +50,6 @@ struct response
   {
   }
 
-
-
-
   /// The headers to be included in the reply.
   std::vector<header> headers;
 

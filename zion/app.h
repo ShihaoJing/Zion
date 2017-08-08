@@ -39,11 +39,11 @@ public:
     return router_.new_param_rule<Tag>(rule);
   }
 
-  auto route(std::string rule)
+  /*auto route(std::string rule)
     -> typename std::result_of<decltype(&Router::new_rule)(Router, std::string)>::type
   {
     return router_.new_rule(rule);
-  }
+  }*/
 
   response handle(const request &req) {
     return router_.handle(req);

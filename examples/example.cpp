@@ -9,11 +9,18 @@
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
 
+#include "mustache/mustache.hpp"
+
+
+// Our input data type is going to be a map of strings to strings
+using map_t = std::map<std::string, std::string>;
+
+
 using namespace rapidjson;
 using namespace zion;
+using namespace kainjow::mustache;
 
 int main() {
-
 
   zion::Zion app;
 
@@ -22,6 +29,12 @@ int main() {
         std::ostringstream os;
         os << "name is " << name << " id is " << id << " and weight is " << weight;
         return zion::response(os.str());
+      });
+
+  ZION_ROUTE(app, "/id/<string>")
+      ([](std::string name) {
+        mustache tmpl{"<html> <h1>Hello {{name}}!</h1> </html>"};
+        return zion::response(tmpl.render({"name", name}));
       });
 
   ZION_ROUTE(app, "/weight/<float>")
