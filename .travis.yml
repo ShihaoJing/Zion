@@ -3,7 +3,7 @@ language: cpp
 sudo: false
 
 compiler:
-  - gcc
+  - g++
 
 env:
   matrix:
@@ -23,6 +23,7 @@ addons:
         - time
 
 before_script:
+  - sudo apt-get install libboost-all-dev
   - export CXX=$COMPILER CC=$CCOMPILER
   - mkdir build
   - cd build
