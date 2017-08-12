@@ -11,7 +11,7 @@
 #include <memory>
 #include <string>
 
-#define ZION_ROUTE(app, url) app.route<zion::util::get_parameter_tag(url)>(url)
+#define ROUTE(app, url) app.route<zion::util::get_parameter_tag(url)>(url)
 
 namespace zion {
 

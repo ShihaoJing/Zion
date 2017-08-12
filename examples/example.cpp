@@ -19,45 +19,56 @@ using map_t = std::map<std::string, std::string>;
 using namespace rapidjson;
 using namespace zion;
 using namespace kainjow::mustache;
+using namespace std;
+
 
 int main() {
 
   zion::Zion app;
 
-  ZION_ROUTE(app, "/name/<string>/id/<int>/weight/<float>")
+  ROUTE(app, "/")([](){
+    return "Hello World!";
+  });
+
+  ROUTE(app, "/name/<string>/id/<int>/weight/<float>")
       ([](std::string name, int id, float_t weight) {   // resp should be response type
         std::ostringstream os;
         os << "name is " << name << " id is " << id << " and weight is " << weight;
         return zion::response(os.str());
       });
 
-  ZION_ROUTE(app, "/id/<string>")
+  ROUTE(app, "/id/<string>")
       ([](std::string name) {
         mustache tmpl{"<html> <h1>Hello {{name}}!</h1> </html>"};
         return zion::response(tmpl.render({"name", name}));
       });
 
-  ZION_ROUTE(app, "/weight/<float>")
+  ROUTE(app, "/weight/<float>")
       ([](float_t weight) {   // resp should be response type
         std::ostringstream os;
         os << "weight is " << weight;
         return zion::response(os.str());
       });
 
-  ZION_ROUTE(app, "/index")
-      ([](const zion::request &req){
-        Document d;
-        d.Parse(req.body.data());
-        // 2. Modify it by DOM.
-        Value& s = d["stars"];
-        s.SetInt(s.GetInt() + 1);
+  ROUTE(app, "/hello")([](const request &req){
+    string url = req.uri;
+    string method = req.method;
+    return "hello world!";
+  });
 
-        // 3. Stringify the DOM
-        StringBuffer buffer;
-        Writer<StringBuffer> writer(buffer);
-        d.Accept(writer);
-        return buffer.GetString();
-      });
+  ROUTE(app, "/index")([](const zion::request &req){
+    Document d;
+    d.Parse(req.body.data());
+    // 2. Modify it by DOM.
+    Value& s = d["stars"];
+    s.SetInt(s.GetInt() + 1);
+
+    // 3. Stringify the DOM
+    StringBuffer buffer;
+    Writer<StringBuffer> writer(buffer);
+    d.Accept(writer);
+    return buffer.GetString();
+  });
 
   app.port("8080")
       .bindaddr("127.0.0.1")
