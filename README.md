@@ -1,6 +1,5 @@
 ![Zion logo](https://github.com/ShihaoJing/Zion/blob/master/logo.png)
 
-# Zion 
 Header only micro web framework implemented in C++11, inspired by python flask and Crow.
 
 ### Easy To Write and Setup
