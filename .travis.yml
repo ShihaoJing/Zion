@@ -1,15 +1,29 @@
 language: cpp
 
-sudo: false
+sudo: true
 
 compiler:
-  - gcc
+  - g++
 
 env:
   matrix:
-    - COMPILER=g++-4.8 CCOMPILER=gcc-4.8 PUSH_COVERAGE=OFF
+    - COMPILER=g++-4.8 CCOMPILER=gcc-4.8 PUSH_COVERAGE=ON
+
+addons:
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+      - boost-latest
+    packages:
+      - g++-4.8
+      - libboost-all-dev
+      - python-pip
+    packages:
+        - cmake
+        - time
 
 before_script:
+  - sudo apt-get install libboost-all-dev
   - export CXX=$COMPILER CC=$CCOMPILER
   - mkdir build
   - cd build
