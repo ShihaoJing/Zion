@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.7)
+cmake_minimum_required(VERSION 3.2)
 project(Zion_tests)
 
 add_executable(unittest unittest.cpp)
