@@ -5,7 +5,7 @@ Header only micro web framework implemented in C++11, inspired by python flask a
 ### Easy To Write and Setup
 
 A minimal Zion application looks something like this.
-```
+```c++
 #include "zion.h"
 using namespce zion;
 int main() {    
@@ -38,7 +38,7 @@ Handlers can be designated to a Lambda function.
 As you have seen above, 'ROUTE' macro receives two parameters, a instance of Zion and a URL, and returns a instance of routing rule.
 Rule class have overloaded '()' operator to receive a Lambda function as handler of URL.
 
-```
+```c++
 ROUTE(app, "/")([](){
     return "Hello World!";
 });
@@ -52,7 +52,7 @@ ROUTE(app, "/index")([](){
 To add variable parts to a URL you can mark these special sections as <variable_type>. 
 Such a part is then passed as a keyword argument to your function. 
 
-```
+```c++
 ROUTE(app, "/name/<string>/id/<int>/weight/<float>")
 ([](std::string name, int id, float_t weight) {   // resp should be response type
     std::ostringstream os;
@@ -67,7 +67,7 @@ Following 3 types are supported by now
  - < string > : convert to string variables
  
  In addition, you can access request data by passing request argument in handler.
-```
+```c++
 ROUTE(app, "/hello")([](const request &req){
     string url = req.uri;
     string method = req.method;
@@ -79,7 +79,7 @@ ROUTE(app, "/hello")([](const request &req){
  
 ### JSON request and response
 Zion uses [rapidjson](https://github.com/miloyip/rapidjson) for JSON request and response parsing. As aways, you can use other json libraries.
-```
+```c++
 ROUTE(app, "/json")([](const zion::request &req){
     // 1. parse json from request body.
     Document d;
@@ -99,7 +99,7 @@ More json examples: [rapidjson](https://github.com/miloyip/rapidjson)
  
  ### Rendering Templates
  Zion provides mustache template engine by default. However, you can easily implement or use other template engine.
- ```
+ ```c++
  ROUTE(app, "/id/<string>")
 ([](std::string name) {
     mustache tmpl{"<html> <h1>Hello {{name}}!</h1> </html>"};
