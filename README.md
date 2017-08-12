@@ -2,6 +2,8 @@
 
 Header only micro web framework implemented in C++11, inspired by python flask and Crow.
 
+[![Travis Build](https://travis-ci.org/ShihaoJing/Zion.svg?branch=master)](https://travis-ci.org/ShihaoJing/Zion)
+
 ### Easy To Write and Setup
 
 A minimal Zion application looks something like this.
