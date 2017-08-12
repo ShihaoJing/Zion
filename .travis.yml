@@ -1,0 +1,19 @@
+language: cpp
+
+sudo: false
+
+compiler:
+  - gcc
+
+env:
+  matrix:
+    - COMPILER=g++-4.8 CCOMPILER=gcc-4.8 PUSH_COVERAGE=OFF
+
+before_script:
+  - export CXX=$COMPILER CC=$CCOMPILER
+  - mkdir build
+  - cd build
+  - cmake --version
+  - cmake ..
+
+script: make
