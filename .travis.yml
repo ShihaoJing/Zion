@@ -18,6 +18,9 @@ addons:
       - g++-4.8
       - libboost1.55-all-dev
       - python-pip
+    packages:
+        - cmake
+        - time
 
 before_script:
   - export CXX=$COMPILER CC=$CCOMPILER
