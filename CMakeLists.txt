@@ -3,7 +3,7 @@ project(Zion)
 
 set(CMAKE_CXX_STANDARD 14)
 
-find_package(Boost COMPONENTS thread system REQUIRED)
+find_package(Boost 1.52 COMPONENTS thread system REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
 
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/zion ${PROJECT_SOURCE_DIR}/include)
