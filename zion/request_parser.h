@@ -73,6 +73,7 @@ public:
     if (!req->header_field.empty())
     {
       req->headers.emplace(std::move(req->header_field), std::move(req->header_value));
+      req->method_code = parser->method;
       req->method = http_method_str(http_method(parser->method));
       req->http_version_major = parser->http_major;
       req->http_version_minor = parser->http_minor;

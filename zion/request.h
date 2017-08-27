@@ -11,11 +11,21 @@
 
 namespace zion {
 
+enum class HTTPMethod
+{
+  DELETE,
+  GET,
+  HEAD,
+  POST,
+  PUT
+};
+
 struct request
 {
   int http_version_major;
   int http_version_minor;
   std::string method;
+  unsigned int method_code;
   std::string uri;
   std::string header_field;
   std::string header_value;

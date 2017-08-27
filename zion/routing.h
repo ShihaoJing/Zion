@@ -28,12 +28,6 @@ public:
   virtual ~BaseRule()
   {
   }
-
-  BaseRule& name(std::string name) {
-    name_ = name;
-    return *this;
-  }
-
   //virtual void validate();
 
   virtual response handle(const request&, const util::routing_param&)
@@ -43,6 +37,7 @@ public:
 
   std::string rule_;
   std::string name_;
+  unsigned int method_{(int)HTTPMethod::GET};
 };
 
 class Rule : public BaseRule
@@ -155,8 +150,19 @@ private:
     }
   };
 public:
+  using self_t = ParamRule<Args...>;
   ParamRule(std::string rule) : BaseRule(rule){
 
+  }
+
+  self_t& name(std::string name) {
+    name_ = name;
+    return *this;
+  }
+
+  self_t& method(HTTPMethod method) {
+    method_ = (int)method;
+    return *this;
   }
 
   template <typename Func>
@@ -377,10 +383,14 @@ public:
   {
     util::routing_param routing_params;
     int rule_index = trie_.search(req.uri, routing_params);
-    if (rule_index != -1)
-      return rules_[rule_index]->handle(req, routing_params);
 
-    return response(response::not_found);
+    if (rule_index == -1)
+      return response(response::not_found);
+
+    if (rules_[rule_index]->method_ != req.method_code)
+      return response(response::not_found);
+
+    return rules_[rule_index]->handle(req, routing_params);
   }
 
 private:

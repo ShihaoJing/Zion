@@ -50,6 +50,8 @@ private:
                               if (!ec) {
                                 request_parser_.parse(request_, buffer_.data(), bytes_transferred);
                                 std::cout << request_.uri << std::endl;
+                                std::cout << request_.method << std::endl;
+                                std::cout << request_.method_code << std::endl;
                                 handle();
                               }
                               else if (ec != boost::asio::error::operation_aborted) {

@@ -26,9 +26,10 @@ int main() {
 
   zion::Zion app;
 
-  ROUTE(app, "/")([](){
-    return "Hello World!";
-  });
+  ROUTE(app, "/").method(HTTPMethod::POST)
+      ([](){
+        return "Hello World!";
+      });
 
   ROUTE(app, "/name/<string>/id/<int>/weight/<float>")
       ([](std::string name, int id, float_t weight) {   // resp should be response type
